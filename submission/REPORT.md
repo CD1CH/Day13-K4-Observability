@@ -23,11 +23,11 @@
 
 ## 4. Prompt versioning
 
-- Prompt name:
-- Version/label baseline:
-- Version/label candidate:
-- Trace ID của mỗi version:
-- Bằng chứng đổi label hoặc rollback:
+- Prompt name: day13-chat
+- Version/label baseline: v1 (production, baseline)
+- Version/label candidate: v2 (candidate)
+- Trace ID của mỗi version: v1: e4b89ad34ce3c7d216ae3e354ce775bc, v2: d79157273d33e662a26d800e0d29d933
+- Bằng chứng đổi label hoặc rollback: ![Rollback evidence](evidence/rollback.png)
 
 ## 5. Dashboard, SLO và alerts
 
@@ -38,13 +38,13 @@
 
 ## 6. Điều tra challenge
 
-- Challenge ID:
-- Triệu chứng từ metrics:
-- Trace ID liên quan:
-- Log line/correlation ID liên quan:
-- Root cause:
-- Fix action:
-- Preventive measure:
+- Challenge ID: N/A (Practice Incident)
+- Triệu chứng từ metrics: Latency P95 tăng vọt lên ~2650ms.
+- Trace ID liên quan: 
+- Log line/correlation ID liên quan: req-561b00e0
+- Root cause: Bật lỗi giả lập rag_slow
+- Fix action: Tắt lỗi giả lập bằng API
+- Preventive measure: 
 
 ## 7. Đóng góp cá nhân
 
