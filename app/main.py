@@ -42,16 +42,6 @@ async def metrics() -> dict:
     return snapshot()
 
 
-@app.exception_handler(Exception)
-async def generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    correlation_id = getattr(request.state, "correlation_id", "unknown")
-    return JSONResponse(
-        status_code=500,
-        content={"detail": type(exc).__name__},
-        headers={"x-request-id": correlation_id},
-    )
-
-
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: Request, body: ChatRequest) -> ChatResponse:
     bind_contextvars(
