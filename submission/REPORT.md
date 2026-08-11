@@ -86,3 +86,13 @@ Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
 | Thành viên | Phần việc | Commit/PR | Điều đã học |
 |---|---|---|---|
 | (Tên) | Toàn bộ: middleware, logging, PII, tracing, prompt versioning, dashboard, SLO, alerts, challenge investigation | (commit SHA khi nộp) | Cách xây dựng observability pipeline hoàn chỉnh: từ correlation ID xuyên suốt request, PII redaction trước khi ghi log, đến việc dùng 3 tầng Metrics → Traces → Logs để điều tra incident. Hiểu rõ prompt versioning và rollback trên Langfuse. |
+
+## 8. Bonus
+
+Nhóm đã thực hiện các phần Bonus sau để lấy điểm tối đa:
+1. **Audit Log riêng**:
+   - Đã triển khai `AuditLogProcessor` trong `app/logging_config.py`.
+   - Các log event chứa flag `audit=True` (ví dụ khi bật/tắt incident trong `app/main.py`) sẽ được route và ghi riêng ra file `data/audit.jsonl` giúp team Security dễ dàng review quyền truy cập thay vì phải tìm kiếm trong `data/logs.jsonl` chung.
+2. **Automation hữu ích**:
+   - Viết thêm script `scripts/health_check.py`.
+   - Script tự động ping các endpoint `/health` và `/metrics`, parse kết quả JSON, và cảnh báo ngay lập tức nếu có incident đang active (nguy cơ) hoặc error_rate vượt quá ngưỡng cho phép. Tiện lợi khi đưa vào cronjob hay CI/CD pipeline.

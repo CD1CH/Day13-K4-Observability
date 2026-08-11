@@ -11,6 +11,7 @@ from structlog.contextvars import merge_contextvars
 from .pii import scrub_text
 
 LOG_PATH = Path(os.getenv("LOG_PATH", "data/logs.jsonl"))
+AUDIT_LOG_PATH = Path(os.getenv("AUDIT_LOG_PATH", "data/audit.jsonl"))
 
 
 class JsonlFileProcessor:
@@ -21,6 +22,15 @@ class JsonlFileProcessor:
             f.write(rendered + "\n")
         return event_dict
 
+
+class AuditLogProcessor:
+    def __call__(self, logger: Any, method_name: str, event_dict: dict[str, Any]) -> dict[str, Any]:
+        if event_dict.get("audit") is True:
+            AUDIT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+            rendered = structlog.processors.JSONRenderer()(logger, method_name, event_dict)
+            with AUDIT_LOG_PATH.open("a", encoding="utf-8") as f:
+                f.write(rendered + "\n")
+        return event_dict
 
 
 def scrub_event(_: Any, __: str, event_dict: dict[str, Any]) -> dict[str, Any]:
@@ -34,7 +44,6 @@ def scrub_event(_: Any, __: str, event_dict: dict[str, Any]) -> dict[str, Any]:
     return event_dict
 
 
-
 def configure_logging() -> None:
     logging.basicConfig(format="%(message)s", level=getattr(logging, os.getenv("LOG_LEVEL", "INFO")))
     structlog.configure(
@@ -45,13 +54,13 @@ def configure_logging() -> None:
             scrub_event,
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
+            AuditLogProcessor(),
             JsonlFileProcessor(),
             structlog.processors.JSONRenderer(),
         ],
         wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
         cache_logger_on_first_use=True,
     )
-
 
 
 def get_logger() -> structlog.typing.FilteringBoundLogger:

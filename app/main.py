@@ -99,7 +99,7 @@ async def chat(request: Request, body: ChatRequest) -> ChatResponse:
 async def enable_incident(name: str) -> JSONResponse:
     try:
         enable(name)
-        log.warning("incident_enabled", service="control", payload={"name": name})
+        log.warning("incident_enabled", service="control", audit=True, payload={"name": name})
         return JSONResponse({"ok": True, "incidents": status()})
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
@@ -109,7 +109,7 @@ async def enable_incident(name: str) -> JSONResponse:
 async def disable_incident(name: str) -> JSONResponse:
     try:
         disable(name)
-        log.warning("incident_disabled", service="control", payload={"name": name})
+        log.warning("incident_disabled", service="control", audit=True, payload={"name": name})
         return JSONResponse({"ok": True, "incidents": status()})
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
