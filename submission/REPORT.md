@@ -2,10 +2,13 @@
 
 ## 1. Thông tin nhóm
 
-- Tên nhóm: K4 Observability Team
-- Repository URL: (điền khi nộp)
-- Commit SHA cuối: (điền khi nộp)
-- Thành viên và vai trò: Full-stack (Logging, PII, Tracing, Dashboard, Challenge)
+- Tên nhóm: Đẹp trai
+- Repository URL: https://github.com/CD1CH/Day13-K4-Observability/tree/main
+- Commit SHA cuối: 0cc0935e980225854c957784ca5e0456122417ce
+- Thành viên và vai trò:
+  - Nguyễn Mai Nhật Anh (anh-dz): Core Framework & Bonus
+  - Bùi Xuân Hòa (bxhoa04): Tracing & Incident Investigation
+  - Nguyễn Hoàng Anh (CD1CH): Dashboard & Alerts
 
 ## 2. Kết quả kỹ thuật
 
@@ -19,6 +22,10 @@
 - Evidence correlation ID: Mỗi request có correlation ID unique format `req-<8-char-hex>` (ví dụ: `req-69d85829`, `req-d9904add`). Correlation ID được tạo trong `CorrelationIdMiddleware`, bind vào structlog contextvars, trả về trong header `x-request-id` và ghi vào mọi log record. Contextvars được clear trước mỗi request để tránh rò rỉ.
 - Evidence PII redaction: Email `student@vinuni.edu.vn` → `[REDACTED_EMAIL]`, số điện thoại `0987654321` → `[REDACTED_PHONE_VN]`, credit card `4111 1111 1111 1111` → `[REDACTED_CREDIT_CARD]`. PII scrub processor được đặt trước `JsonlFileProcessor` để dữ liệu được che trước khi ghi xuống file.
 - Evidence trace waterfall: Traces hiện trên Langfuse tại `https://us.cloud.langfuse.com` với đầy đủ generation span có `model`, `usage_details`, `cost_details`, `prompt` metadata.
+  
+  ![Trace Waterfall](evidence/trace_langfuse.png)
+  ![10 Traces](evidence/10_traces.png)
+  
 - Giải thích một span đáng chú ý: Trong challenge, span `LabAgent.run` có duration ~2656ms (bình thường ~155ms). Nguyên nhân do RAG retrieval (`mock_rag.retrieve`) bị inject thêm `time.sleep(2.5)` khi `rag_slow=True`, khiến toàn bộ pipeline bị chậm.
 
 ## 4. Prompt versioning
@@ -39,6 +46,10 @@
 
 - Kết quả `validate_dashboard.py`: **HỢP LỆ: 6/6 panel** có trong dashboard contract
 - Evidence dashboard: Dashboard contract tại `config/dashboard.yaml` với 6 panel:
+
+  ![Dashboard](evidence/dashboard.png)
+  ![Dashboard Langfuse](evidence/dashboard_langfuse.png)
+
   1. **Latency percentiles**: P50/P95/P99 từ `response_sent.latency_ms`, threshold P95 ≤ 3000ms
   2. **Request traffic**: count + rate/phút từ `request_received`, threshold ≥ 1 req/min
   3. **Error rate and breakdown**: error_rate_pct + count_by(error_type), threshold ≤ 2%
@@ -85,7 +96,9 @@ Với mỗi thành viên, ghi rõ nhiệm vụ và link commit/PR tương ứng.
 
 | Thành viên | Phần việc | Commit/PR | Điều đã học |
 |---|---|---|---|
-| (Tên) | Toàn bộ: middleware, logging, PII, tracing, prompt versioning, dashboard, SLO, alerts, challenge investigation | (commit SHA khi nộp) | Cách xây dựng observability pipeline hoàn chỉnh: từ correlation ID xuyên suốt request, PII redaction trước khi ghi log, đến việc dùng 3 tầng Metrics → Traces → Logs để điều tra incident. Hiểu rõ prompt versioning và rollback trên Langfuse. |
+| Nguyễn Mai Nhật Anh (anh-dz) | Xây dựng bộ khung dự án: cấu hình structlog middleware, xử lý PII redaction, và triển khai phần Bonus (Audit Log, Health Check). | 0cc0935e980225854c957784ca5e0456122417ce | Hiểu sâu về cách inject Correlation ID qua middleware và cách thiết lập một custom log processor cho audit log. |
+| Bùi Xuân Hòa (bxhoa04) | Triển khai Tracing trên Langfuse: set up metadata, quản lý prompt versioning, thực hiện rollback và trực tiếp điều tra incident `rag_slow`. | 0cc0935e980225854c957784ca5e0456122417ce | Nắm vững cách dùng Langfuse SDK để trace generation span và hiểu rõ quy trình traceback lỗi từ metrics xuống trace. |
+| Nguyễn Hoàng Anh (CD1CH) | Thiết lập Metrics & Alerts: xây dựng Dashboard contract 6 panels, định nghĩa các SLO hợp lý, cài đặt rule cảnh báo và viết Runbook. | 0cc0935e980225854c957784ca5e0456122417ce | Cách map trực tiếp từ trải nghiệm người dùng (symptom) thành các SLI/SLO và thiết lập rule cảnh báo hiệu quả. |
 
 ## 8. Bonus
 
